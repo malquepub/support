@@ -30,11 +30,11 @@ def get_response(prompt):
                 {"role": "user", "content": prompt}
             ]
         )
-        return response.choices[0].message["content"].strip()
-    except openai.error.AuthenticationError:
-        return "❌ Authentication failed. Please check the OpenAI API key."
+        return response["choices"][0]["message"]["content"].strip()
+    except openai.error.OpenAIError as e:
+        return f"❌ OpenAI API Error: {e}"
     except Exception as e:
-        return f"⚠️ An error occurred: {e}"
+        return f"⚠️ An unexpected error occurred: {e}"
 
 # Display Ana's response
 if user_input:
