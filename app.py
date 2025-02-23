@@ -4,7 +4,7 @@ import openai
 # ------------------------------ 
 # CONFIGURATION 
 # ------------------------------
-API_KEY = "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"  # Substitua pela sua chave da OpenAI
+API_KEY = "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"  # Substitua pela sua chave da OpenAI
 ASSISTANT_ID = "asst_6mxGRBwNtDBa4F9203Z2S0sM"  # ID do seu assistente criado
 
 openai.api_key = API_KEY
