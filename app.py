@@ -1,76 +1,51 @@
 import streamlit as st
 import openai
 
-# ------------------------------ 
-# CONFIGURATION 
-# ------------------------------
-API_KEY = "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"  # Substitua pela sua chave da OpenAI
-ASSISTANT_ID = "asst_6mxGRBwNtDBa4F9203Z2S0sM"  # ID do seu assistente criado
+# Configure a chave de API da OpenAI (recomenda-se usar st.secrets para segurança)
+openai.api_key = st.secrets["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"]
 
-openai.api_key = API_KEY
+# ID do assistente criado na plataforma OpenAI
+ASSISTANT_ID = "asst_6mxGRBwNtDBa4F9203Z2S0sM"
 
-# ------------------------------ 
-# STREAMLIT CONFIGURATION 
-# ------------------------------
-st.set_page_config(page_title="Ana - Malke Publishing Assistant", page_icon="📚")
+st.title("Ana - Malke Publishing Virtual Assistant")
 
-st.title("📚 Ana - Malke Publishing Assistant")
-st.markdown("Hello, I'm **Ana**, the virtual assistant at Malke Publishing. 😊💜💛💜")
-st.markdown("I'm here to assist you with any questions about our journals and services. How can I help you today? 📚")
+# Inicializar o histórico de conversas
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# User input field
-user_input = st.text_input("Type your question:")
+# Exibir o histórico de mensagens
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-# ------------------------------
-# FUNCTION TO INTERACT WITH ASSISTANT
-# ------------------------------
-def get_response(prompt):
+# Campo de entrada para o usuário
+prompt = st.chat_input("Digite sua mensagem...")
+
+if prompt:
+    # Adiciona a mensagem do usuário ao histórico
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    # Exibir a mensagem do usuário
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Envia a mensagem para o assistente e obtém a resposta
     try:
-        # Step 1: Create a new thread
-        thread = openai.beta.threads.create()
-
-        # Step 2: Add user message to the thread
-        openai.beta.threads.messages.create(
-            thread_id=thread["id"],
-            role="user",
-            content=prompt
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+            tools=["assistant"],
+            tool_choice={"type": "assistant", "id": ASSISTANT_ID}
         )
 
-        # Step 3: Run the assistant on the thread
-        run = openai.beta.threads.runs.create(
-            thread_id=thread["id"],
-            assistant_id=ASSISTANT_ID
-        )
+        assistant_response = response.choices[0].message["content"]
 
-        # Step 4: Poll until completion
-        import time
-        while True:
-            status = openai.beta.threads.runs.retrieve(
-                thread_id=thread["id"],
-                run_id=run["id"]
-            )
-            if status["status"] == "completed":
-                break
-            time.sleep(1)  # Wait a bit before checking again
+        # Adiciona a resposta ao histórico de mensagens
+        st.session_state.messages.append({"role": "assistant", "content": assistant_response})
 
-        # Step 5: Retrieve the latest messages
-        messages = openai.beta.threads.messages.list(thread_id=thread["id"])
-        response = messages["data"][0]["content"][0]["text"]["value"]
-        return response
+        # Exibir a resposta do assistente
+        with st.chat_message("assistant"):
+            st.markdown(assistant_response)
 
     except Exception as e:
-        st.error(f"❌ An error occurred: {e}")
-        return "Sorry, something went wrong. Please try again later."
-
-# ------------------------------
-# DISPLAY ANA'S RESPONSE
-# ------------------------------
-if user_input:
-    response = get_response(user_input)
-    st.markdown(f"**Ana:** {response}")
-
-# ------------------------------
-# FOOTER
-# ------------------------------
-st.markdown("---")
-st.markdown("🔗 [Malke Publishing](https://malque.pub) | ✉️ Contact: contact@malque.pub")
+        st.error(f"Erro ao se comunicar com o assistente: {e}")
