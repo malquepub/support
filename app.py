@@ -1,40 +1,36 @@
 import streamlit as st
 import openai
 
-# Configurações iniciais do Streamlit
-st.set_page_config(page_title="Ana - Malke Publishing", page_icon="📚")
-st.title("Ana - Assistente Virtual da Malke Publishing")
+# Configurar título do app
+st.set_page_config(page_title="Ana - Assistente da Malke Publishing", page_icon="📚")
 
-# Mensagem de saudação (aparece apenas uma vez por sessão)
-if 'greeted' not in st.session_state:
-    st.session_state['greeted'] = True
-    st.write("Hello, I am Ana from Malke Publishing. 😊💜💛💜")
-    st.write("I’m here to assist you with any questions about our journals and services. How can I help you today? 📚")
+# Exibir título e introdução
+st.title("📚 Ana - Assistente da Malke Publishing")
+st.markdown("Olá, sou **Ana**, a assistente virtual da Malke Publishing. 😊💜💛💜")
+st.markdown("Estou aqui para ajudar com dúvidas sobre nossos periódicos e serviços. Como posso ajudar você hoje? 📚")
 
-# Função para gerar resposta com base no prompt e contexto fornecido
-def generate_response(prompt):
-    context = (
-        "You are Ana, the assistant at Malke Publishing. You are an expert in Open Journal Systems (OJS) and provide "
-        "support to authors and potential authors who wish to publish their articles in one of our publisher's journals. "
-        "You are kind and attentive, providing concise answers. Use emojis when appropriate."
-    )
+# Caixa de entrada do usuário
+user_input = st.text_input("Digite sua pergunta:")
 
+# Configurar chave da OpenAI (substituir pela sua chave da API)
+openai.api_key = "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"
+
+# Configurar comportamento da assistente
+def get_response(prompt):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": context},
+            {"role": "system", "content": "Você é Ana, a assistente virtual da Malke Publishing, especializada em Open Journal Systems (OJS). Você fornece respostas concisas e atenciosas, utilizando emojis quando apropriado."},
             {"role": "user", "content": prompt}
-        ],
-        max_tokens=200
+        ]
     )
+    return response["choices"][0]["message"]["content"]
 
-    return response['choices'][0]['message']['content'].strip()
-
-# Entrada de texto do usuário
-user_input = st.text_input("Digite sua pergunta:")
-
-# Quando o usuário envia uma pergunta, gera uma resposta e exibe
+# Exibir resposta da assistente
 if user_input:
-    with st.spinner('Ana está digitando...'): 
-        response = generate_response(user_input)
-    st.write(response)
+    response = get_response(user_input)
+    st.markdown(f"**Ana:** {response}")
+
+# Rodapé
+st.markdown("---")
+st.markdown("🔗 [Malke Publishing](https://malque.pub) | ✉️ Contato: contact@malque.pub")
