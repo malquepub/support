@@ -7,9 +7,9 @@ import openai
 # Set your OpenAI API key directly in the code (ensure you keep this secure)
 API_KEY = "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"  # Replace with your actual OpenAI API key
 
-# Verify if the API key is set
+# Verify if the API key is set and valid
 if not API_KEY or not API_KEY.startswith("sk-"):
-    st.error("❌ Invalid API key. Please check and provide a valid OpenAI API key.")
+    st.error("❌ Invalid API key format. Please check and provide a valid OpenAI API key.")
 else:
     openai.api_key = API_KEY
 
@@ -24,7 +24,7 @@ st.markdown("I'm here to assist you with any questions about our journals and se
 # User input field
 user_input = st.text_input("Type your question:")
 
-# Function to get response from Ana using the updated OpenAI API (v1.0.0 and above)
+# Function to get response from Ana using the updated OpenAI API
 def get_response(prompt):
     try:
         response = openai.ChatCompletion.create(
@@ -35,10 +35,6 @@ def get_response(prompt):
             ]
         )
         return response["choices"][0]["message"]["content"].strip()
-
-    except openai.error.AuthenticationError:
-        st.error("❌ Invalid API key. Please verify your key on https://platform.openai.com/account/api-keys.")
-        return "Invalid API key. Please update it and try again."
 
     except Exception as e:
         st.error(f"❌ An unexpected error occurred: {str(e)}")
