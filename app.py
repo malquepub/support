@@ -1,36 +1,40 @@
 import streamlit as st
 import openai
 
-# Configurar título do app
-st.set_page_config(page_title="Ana - Assistente da Malke Publishing", page_icon="📚")
+# Streamlit page configuration
+st.set_page_config(page_title="Ana - Malque Publishing Assistant", page_icon="📚")
 
-# Exibir título e introdução
-st.title("📚 Ana - Assistente da Malke Publishing")
-st.markdown("Olá, sou **Ana**, a assistente virtual da Malke Publishing. 😊💜💛💜")
-st.markdown("Estou aqui para ajudar com dúvidas sobre nossos periódicos e serviços. Como posso ajudar você hoje? 📚")
+# Title and introduction
+st.title("📚 Ana - Malque Publishing Assistant")
+st.markdown("Hello, I'm **Ana**, the virtual assistant at Malque Publishing. 😊💜💛💜")
+st.markdown("I'm here to assist you with any questions about our journals and services. How can I help you today? 📚")
 
-# Caixa de entrada do usuário
-user_input = st.text_input("Digite sua pergunta:")
+# Sidebar for OpenAI API key input
+api_key = st.sidebar.text_input("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", type="password")
 
-# Configurar chave da OpenAI (substituir pela sua chave da API)
-openai.api_key = "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"
+# User input
+user_input = st.text_input("Type your question:")
 
-# Configurar comportamento da assistente
-def get_response(prompt):
-    response = openai.ChatCompletion.create(
+# Function to get response from Ana
+def get_response(prompt, api_key):
+    if not api_key:
+        return "⚠️ Please enter your OpenAI API key in the sidebar."
+    
+    client = openai.OpenAI(api_key=api_key)
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "Você é Ana, a assistente virtual da Malke Publishing, especializada em Open Journal Systems (OJS). Você fornece respostas concisas e atenciosas, utilizando emojis quando apropriado."},
+            {"role": "system", "content": "You are Ana, the virtual assistant at Malke Publishing, an expert in Open Journal Systems (OJS). You provide concise, kind, and attentive responses, using emojis when appropriate."},
             {"role": "user", "content": prompt}
         ]
     )
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content.strip()
 
-# Exibir resposta da assistente
+# Display Ana's response
 if user_input:
-    response = get_response(user_input)
+    response = get_response(user_input, api_key)
     st.markdown(f"**Ana:** {response}")
 
-# Rodapé
+# Footer
 st.markdown("---")
-st.markdown("🔗 [Malke Publishing](https://malque.pub) | ✉️ Contato: contact@malque.pub")
+st.markdown("🔗 [Malke Publishing](https://malque.pub) | ✉️ Contact: contact@malque.pub")
