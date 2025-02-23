@@ -29,9 +29,10 @@ def get_response(prompt):
             ]
         )
         return response['choices'][0]['message']['content'].strip()
-
+    
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        st.error(f"❌ An error occurred: {str(e)}")
+        return "Sorry, something went wrong. Please try again later."
 
 # Display Ana's response
 if user_input:
