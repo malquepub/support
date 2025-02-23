@@ -1,42 +1,16 @@
 import streamlit as st
 import openai
 
+# ------------------------------ 
+# CONFIGURATION 
 # ------------------------------
-# CONFIGURATION
-# ------------------------------
-API_KEY = "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" # Replace with your actual OpenAI API key
+API_KEY = "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"  # Substitua pela sua chave da OpenAI
+ASSISTANT_ID = "asst_6mxGRBwNtDBa4F9203Z2S0sM"  # ID do seu assistente criado
+
 openai.api_key = API_KEY
 
-# ------------------------------
-# PDF CONTENT (EMBEDDED IN THE CODE)
-# ------------------------------
-PDF_CONTENT = """
-You are Ana, the assistant at Malke Publishing. You are an expert in Open Journal Systems (OJS) and provide support to authors and potential authors who wish to publish their articles in one of our publisher's journals. You are kind and attentive and interact daily with academics from around the world. You should provide concise answers. Use emojis if you find it appropriate.
-
-Malke Publishing is an international, independent publisher specializing in open-access journals. Based in Brazil since 2019, it operates several journals:
-1. Applied Veterinary Research (avr@malque.pub) – APC-free in 2025
-2. Humanities Journal (humanities@malque.pub) – APC-free in 2025
-3. Journal of Animal Behaviour and Biometeorology (jabb@malque.pub) – USD 990 APC
-4. Multidisciplinary Reviews (multireviews@malque.pub) – USD 500 APC
-5. Multidisciplinary Science Journal (multiscience@malque.pub) – USD 500 APC
-
-Payment methods vary by region, including PayPal (7% fee for international payments), Pix, and bank transfers. Authors from low-income countries (as per World Bank classification) are eligible for a 50% APC discount.
-
-Fast-track review is available for selected journals with varying APCs (USD 1500 to USD 2000). Language editing services are available for USD 150 (regular) or USD 200 (fast-track), with a turnaround of up to seven business days.
-
-Authors must track submission statuses through the online platform. The average timelines in 2024 are 45 days for the first editorial decision and 76 days for the final decision.
-
-Malke Publishing strictly adheres to COPE guidelines. The journals operate a double-blind peer-review process with no tolerance for plagiarism or unethical practices. Submission requirements include conflict-of-interest disclosures, ethical approvals for animal/human research, and proper authorship attributions.
-
-Open access is provided under the Creative Commons BY-NC-ND license. No full APC waivers beyond the stated policy are allowed. Manuscript withdrawals after peer review may incur fees up to 50% of the APC.
-
-Scopus-indexed journals include Multidisciplinary Reviews, Multidisciplinary Science Journal, and Journal of Animal Behaviour and Biometeorology. Applied Veterinary Research and Humanities Journal are not yet Scopus-indexed.
-
-Important: Do not answer inquiries unrelated to Malke Publishing. For unaddressed questions, kindly direct users to the respective journal's contact email.
-"""
-
-# ------------------------------
-# STREAMLIT APP CONFIGURATION
+# ------------------------------ 
+# STREAMLIT CONFIGURATION 
 # ------------------------------
 st.set_page_config(page_title="Ana - Malke Publishing Assistant", page_icon="📚")
 
@@ -48,19 +22,44 @@ st.markdown("I'm here to assist you with any questions about our journals and se
 user_input = st.text_input("Type your question:")
 
 # ------------------------------
-# FUNCTION TO GET RESPONSE FROM ANA (UPDATED FOR OPENAI v1.0.0+)
+# FUNCTION TO INTERACT WITH ASSISTANT
 # ------------------------------
 def get_response(prompt):
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=f"Based on the following PDF content, answer the user's question concisely and kindly. Use only the information provided below and include emojis when appropriate.\n\nPDF Content:\n{PDF_CONTENT}\n\nUser Question: {prompt}\nAnswer:",
-            max_tokens=500,
-            temperature=0.3
+        # Step 1: Create a new thread
+        thread = openai.beta.threads.create()
+
+        # Step 2: Add user message to the thread
+        openai.beta.threads.messages.create(
+            thread_id=thread["id"],
+            role="user",
+            content=prompt
         )
-        return response['choices'][0]['text'].strip()
+
+        # Step 3: Run the assistant on the thread
+        run = openai.beta.threads.runs.create(
+            thread_id=thread["id"],
+            assistant_id=ASSISTANT_ID
+        )
+
+        # Step 4: Poll until completion
+        import time
+        while True:
+            status = openai.beta.threads.runs.retrieve(
+                thread_id=thread["id"],
+                run_id=run["id"]
+            )
+            if status["status"] == "completed":
+                break
+            time.sleep(1)  # Wait a bit before checking again
+
+        # Step 5: Retrieve the latest messages
+        messages = openai.beta.threads.messages.list(thread_id=thread["id"])
+        response = messages["data"][0]["content"][0]["text"]["value"]
+        return response
+
     except Exception as e:
-        st.error(f"❌ An error occurred: {str(e)}")
+        st.error(f"❌ An error occurred: {e}")
         return "Sorry, something went wrong. Please try again later."
 
 # ------------------------------
