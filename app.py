@@ -5,7 +5,7 @@ import openai
 # CONFIGURATION
 # ------------------------------
 # Set your OpenAI API key directly in the code (ensure you keep this secure)
-API_KEY = "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"  # Replace with your actual OpenAI API key
+API_KEY = "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"  # Replace with your actual OpenAI API key
 
 # Initialize OpenAI client with the latest API structure
 client = openai.OpenAI(api_key=API_KEY)
