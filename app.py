@@ -30,10 +30,8 @@ def get_response(prompt):
         )
         return response['choices'][0]['message']['content'].strip()
 
-    except openai.error.AuthenticationError:
-        return "❌ Error: Invalid API key. Please check and update your OpenAI API key."
     except Exception as e:
-        return f"⚠️ An unexpected error occurred: {str(e)}"
+        return f"❌ Error: {str(e)}"
 
 # Display Ana's response
 if user_input:
