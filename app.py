@@ -4,7 +4,7 @@ import openai
 # ------------------------------
 # CONFIGURATION
 # ------------------------------
-API_KEY = "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"  # Replace with your actual OpenAI API key
+API_KEY = "-proj-0X2Mplo6-Bek4ghWmzTuRwcfpdwhE9ovGpoXn7uexS0sLAIuogaUFHsQ1flhs0xaGP8T05rZcvT3BlbkFJNks-2OhttDz1Va64TD8MOnturHTEorL-zPmlN5QBE7aXyFS5e7aFy8GcIbgZyV5sOHt2PR5uwA" "  # Replace with your actual OpenAI API key
 openai.api_key = API_KEY
 
 # ------------------------------
@@ -48,21 +48,17 @@ st.markdown("I'm here to assist you with any questions about our journals and se
 user_input = st.text_input("Type your question:")
 
 # ------------------------------
-# FUNCTION TO GET RESPONSE FROM ANA
+# FUNCTION TO GET RESPONSE FROM ANA (UPDATED FOR OPENAI v1.0.0+)
 # ------------------------------
 def get_response(prompt):
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are Ana, the virtual assistant at Malke Publishing. Base your answers exclusively on the provided PDF content."},
-                {"role": "system", "content": f"PDF Content: {PDF_CONTENT}"},
-                {"role": "user", "content": prompt}
-            ],
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=f"Based on the following PDF content, answer the user's question concisely and kindly. Use only the information provided below and include emojis when appropriate.\n\nPDF Content:\n{PDF_CONTENT}\n\nUser Question: {prompt}\nAnswer:",
             max_tokens=500,
             temperature=0.3
         )
-        return response['choices'][0]['message']['content'].strip()
+        return response['choices'][0]['text'].strip()
     except Exception as e:
         st.error(f"❌ An error occurred: {str(e)}")
         return "Sorry, something went wrong. Please try again later."
