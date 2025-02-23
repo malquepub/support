@@ -4,7 +4,7 @@ import openai
 # ------------------------------
 # CONFIGURATION
 # ------------------------------
-API_KEY = "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" "  # Replace with your actual OpenAI API key
+API_KEY = "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" # Replace with your actual OpenAI API key
 openai.api_key = API_KEY
 
 # ------------------------------
