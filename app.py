@@ -22,14 +22,13 @@ user_input = st.text_input("Type your question:")
 # Function to get response from Ana using the updated OpenAI API (v1.0.0 and above)
 def get_response(prompt):
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are Ana, the virtual assistant at Malke Publishing, an expert in Open Journal Systems (OJS). You provide concise, kind, and attentive responses, using emojis when appropriate."},
-                {"role": "user", "content": prompt}
-            ]
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=f"You are Ana, the virtual assistant at Malke Publishing, an expert in Open Journal Systems (OJS). Answer concisely and kindly. Use emojis when appropriate. User: {prompt}",
+            max_tokens=150,
+            temperature=0.7
         )
-        return response['choices'][0]['message']['content'].strip()
+        return response['choices'][0]['text'].strip()
 
     except Exception as e:
         st.error("❌ An unexpected error occurred. Please ensure you are using the latest version of the OpenAI library.")
