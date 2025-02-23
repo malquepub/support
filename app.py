@@ -18,18 +18,18 @@ st.markdown("I'm here to assist you with any questions about our journals and se
 # User input field
 user_input = st.text_input("Type your question:")
 
-# Function to get response from Ana using the correct OpenAI API method
+# Function to get response from Ana using the updated OpenAI API (v1.0.0 and above)
 def get_response(prompt):
     try:
-        response = openai.ChatCompletion.create(
+        response = openai.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are Ana, the virtual assistant at Malke Publishing, an expert in Open Journal Systems (OJS). You provide concise, kind, and attentive responses, using emojis when appropriate."},
                 {"role": "user", "content": prompt}
             ]
         )
-        return response['choices'][0]['message']['content'].strip()
-    
+        return response.choices[0].message.content.strip()
+
     except Exception as e:
         st.error(f"❌ An error occurred: {str(e)}")
         return "Sorry, something went wrong. Please try again later."
